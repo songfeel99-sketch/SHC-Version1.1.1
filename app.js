@@ -4,12 +4,12 @@
    (ចូលទៅ Firebase Console > Project settings > Your apps > SDK config)
    ========================================================= */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDUgDiIFq-GFh4drTSDvurXUnyY5_nQgHk",
+  authDomain: "samat-seia.firebaseapp.com",
+  projectId: "samat-seia",
+  storageBucket: "samat-seia.firebasestorage.app",
+  messagingSenderId: "492616612696",
+  appId: "1:492616612696:web:c4bdcf095ffd7684a8432d"
 };
 
 firebase.initializeApp(firebaseConfig);

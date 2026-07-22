@@ -1,5 +1,26 @@
 /* =========================================================
-   ទិន្នន័យថ្នាក់រៀន (in-memory — export to Excel to save it)
+   ការកំណត់ Firebase
+   សូមប្តូរតម្លៃខាងក្រោមនេះជាព័ត៌មានគណនី Firebase ពិតរបស់អ្នក
+   (ចូលទៅ Firebase Console > Project settings > Your apps > SDK config)
+   ========================================================= */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* ពាក្យសម្ងាត់សម្រាប់ចូលជា Admin — សូមប្តូរជាថ្មីមុនប្រើប្រាស់ពិត! */
+const ADMIN_PASSWORD = "smilehope2026";
+
+/* =========================================================
+   ទិន្នន័យថ្នាក់រៀន
+   ទិន្នន័យពិតត្រូវបានទាញយក/រក្សាទុកតាម Firebase Firestore ដោយស្វ័យប្រវត្តិ
    ========================================================= */
 const CLASSES = [
   "សំអាត ស៊ីអា",
@@ -11,24 +32,116 @@ const CLASSES = [
   "Van Sabut"
 ];
 
+function classDocId(index){ return "c" + index; }
+
 /* រចនាសម្ព័ន្ធ៖ data[teacherName] = [ {name, gender, dob}, ... ] */
 const data = {};
 CLASSES.forEach(name => { data[name] = []; });
 
-/* គំរូទិន្នន័យដំបូង (អាចលុប/កែប្រែបាន) */
-data["សំអាត ស៊ីអា"] = [
-  { name: "សុខ សុភា",   gender: "ស្រី",  dob: "2016-03-12" },
-  { name: "ចាន់ ដារ៉ា",  gender: "ប្រុស", dob: "2016-07-04" }
-];
-data["ដួង សុជាតា"] = [
-  { name: "លី សុវណ្ណ",  gender: "ប្រុស", dob: "2015-11-20" }
-];
-data["Van Sabut"] = [
-  { name: "ហេង ចាន់ថា", gender: "ស្រី",  dob: "2016-01-30" }
-];
-
 let activeClass = CLASSES[0];
 let editingIndex = null; /* null = add mode, number = edit mode */
+let currentUser = null;  /* { role: "teacher" | "admin", class: string|null } */
+
+/* =========================================================
+   ការភ្ជាប់ Firestore (ធ្វើសមកាលកម្មទិន្នន័យតាមពេលវេលាពិត)
+   ========================================================= */
+let firestoreReady = false;
+CLASSES.forEach((name, index) => {
+  db.collection("classes").doc(classDocId(index))
+    .onSnapshot(docSnap => {
+      const students = (docSnap.exists && Array.isArray(docSnap.data().students))
+        ? docSnap.data().students
+        : [];
+      data[name] = students;
+      firestoreReady = true;
+      if (currentUser) renderAll();
+    }, err => {
+      console.error("Firestore sync error:", err);
+      showToast("មិនអាចភ្ជាប់ទៅមូលដ្ឋានទិន្នន័យ Firebase បានទេ។ សូមពិនិត្យការកំណត់", true);
+    });
+});
+
+function saveClassToFirestore(className){
+  const index = CLASSES.indexOf(className);
+  if (index === -1) return;
+  db.collection("classes").doc(classDocId(index))
+    .set({ students: data[className] })
+    .catch(err => {
+      console.error("Firestore save error:", err);
+      showToast("មិនអាចរក្សាទុកទិន្នន័យទៅ Firebase បានទេ", true);
+    });
+}
+
+/* =========================================================
+   ការចូលប្រើប្រាស់ (Login) — ជ្រើសរើសថ្នាក់ ឬ Admin
+   ========================================================= */
+const loginScreenEl   = document.getElementById("loginScreen");
+const loginGridEl     = document.getElementById("loginClassGrid");
+const loginAdminBtn   = document.getElementById("loginAdminBtn");
+const appContainerEl  = document.getElementById("appContainer");
+const logoutBtnEl     = document.getElementById("logoutBtn");
+const sidebarEl       = document.getElementById("sidebarNav");
+
+function renderLoginScreen(){
+  loginGridEl.innerHTML = "";
+  CLASSES.forEach(name => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "login-class-btn";
+    btn.innerHTML = `
+      <span class="class-avatar">${escapeHtml(name.trim().charAt(0))}</span>
+      <span>${escapeHtml(name)}</span>
+    `;
+    btn.addEventListener("click", () => loginAsTeacher(name));
+    loginGridEl.appendChild(btn);
+  });
+}
+
+function loginAsTeacher(className){
+  currentUser = { role: "teacher", class: className };
+  activeClass = className;
+  enterApp();
+}
+
+function loginAsAdmin(){
+  const pwd = prompt("សូមបញ្ចូលពាក្យសម្ងាត់ Admin៖");
+  if (pwd === null) return;
+  if (pwd === ADMIN_PASSWORD){
+    currentUser = { role: "admin", class: null };
+    activeClass = CLASSES[0];
+    enterApp();
+  } else {
+    showToast("ពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ", true);
+  }
+}
+
+function enterApp(){
+  loginScreenEl.hidden = true;
+  appContainerEl.hidden = false;
+  logoutBtnEl.hidden = false;
+
+  if (currentUser.role === "teacher"){
+    sidebarEl.hidden = true;
+    document.getElementById("exportAllBtn").hidden = true;
+    document.getElementById("importAllInput").parentElement.hidden = true;
+  } else {
+    sidebarEl.hidden = false;
+    document.getElementById("exportAllBtn").hidden = false;
+    document.getElementById("importAllInput").parentElement.hidden = false;
+  }
+  renderAll();
+}
+
+function logout(){
+  currentUser = null;
+  appContainerEl.hidden = true;
+  logoutBtnEl.hidden = true;
+  loginScreenEl.hidden = false;
+}
+
+loginAdminBtn.addEventListener("click", loginAsAdmin);
+logoutBtnEl.addEventListener("click", logout);
+renderLoginScreen();
 
 /* =========================================================
    ការគូរផ្ទាំង (Render)
@@ -41,6 +154,7 @@ const activeSubEl   = document.getElementById("activeClassSub");
 const totalCountEl  = document.getElementById("totalStudents");
 
 function renderSidebar(){
+  if (!currentUser || currentUser.role !== "admin") return;
   classListEl.innerHTML = "";
   CLASSES.forEach(name => {
     const li = document.createElement("li");
@@ -62,10 +176,11 @@ function renderSidebar(){
 }
 
 function renderTable(){
+  if (!currentUser) return;
   activeTitleEl.textContent = activeClass;
   activeSubEl.textContent = `គ្រូបន្ទុកថ្នាក់ ៖ ${activeClass}`;
 
-  const rows = data[activeClass];
+  const rows = data[activeClass] || [];
   tableBodyEl.innerHTML = "";
 
   if (rows.length === 0){
@@ -93,11 +208,12 @@ function renderTable(){
 }
 
 function renderTotals(){
-  const total = CLASSES.reduce((sum, name) => sum + data[name].length, 0);
+  const total = CLASSES.reduce((sum, name) => sum + (data[name] ? data[name].length : 0), 0);
   totalCountEl.textContent = total;
 }
 
 function renderAll(){
+  if (!currentUser) return;
   renderSidebar();
   renderTable();
   renderTotals();
@@ -168,6 +284,7 @@ studentForm.addEventListener("submit", (e) => {
     data[activeClass][editingIndex] = student;
     showToast("បានកែប្រែព័ត៌មានសិស្ស");
   }
+  saveClassToFirestore(activeClass);
   closeModal();
   renderAll();
 });
@@ -182,6 +299,7 @@ tableBodyEl.addEventListener("click", (e) => {
     const student = data[activeClass][index];
     if (confirm(`តើអ្នកចង់លុប "${student.name}" ចេញពីថ្នាក់នេះមែនទេ?`)){
       data[activeClass].splice(index, 1);
+      saveClassToFirestore(activeClass);
       showToast("បានលុបទិន្នន័យសិស្ស");
       renderAll();
     }
@@ -218,7 +336,7 @@ function showToast(message, isError = false){
 const HEADERS = ["ល.រ", "ឈ្មោះសិស្ស", "ភេទ", "ថ្ងៃខែឆ្នាំកំណើត"];
 
 function classToSheetData(className){
-  const rows = data[className].map((s, i) => [i + 1, s.name, s.gender, formatDob(s.dob)]);
+  const rows = (data[className] || []).map((s, i) => [i + 1, s.name, s.gender, formatDob(s.dob)]);
   return [HEADERS, ...rows];
 }
 
@@ -272,8 +390,6 @@ function importWorkbook(file, { onlyActiveClass }){
       let importedCount = 0;
 
       wb.SheetNames.forEach(sheetName => {
-        /* Match the sheet to a known class by name; if importing for the
-           active class only, use the first sheet regardless of its name. */
         let targetClass = null;
         if (onlyActiveClass){
           targetClass = activeClass;
@@ -284,7 +400,6 @@ function importWorkbook(file, { onlyActiveClass }){
 
         const ws = wb.Sheets[sheetName];
         const rows = XLSX.utils.sheet_to_json(ws, { header: 1, blankrows: false });
-        /* skip header row, expect: [no, name, gender, dob] */
         const body = rows.slice(1);
         const parsed = body
           .filter(r => r && r[1])
@@ -294,14 +409,11 @@ function importWorkbook(file, { onlyActiveClass }){
             dob: normalizeDob(r[3])
           }));
 
-        if (onlyActiveClass){
-          data[targetClass] = parsed;
-        } else {
-          data[targetClass] = parsed;
-        }
+        data[targetClass] = parsed;
+        saveClassToFirestore(targetClass);
         importedCount += parsed.length;
 
-        if (onlyActiveClass) return; /* only first relevant sheet matters */
+        if (onlyActiveClass) return;
       });
 
       renderAll();
@@ -324,7 +436,6 @@ function normalizeGender(val){
 function normalizeDob(val){
   if (!val) return "";
   const str = String(val).trim();
-  /* dd/mm/yyyy -> yyyy-mm-dd for the <input type="date"> */
   const dmy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (dmy){
     const [, d, m, y] = dmy;
@@ -333,8 +444,3 @@ function normalizeDob(val){
   if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
   return str;
 }
-
-/* =========================================================
-   ចាប់ផ្តើម
-   ========================================================= */
-renderAll();

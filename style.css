@@ -301,6 +301,8 @@ td.col-index{ text-align:center; color:var(--text-soft); }
   outline-offset:1px;
 }
 .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+.dob-group{ display:flex; gap:8px; }
+.dob-group select{ flex:1; }
 
 /* ===== TOAST ===== */
 .toast{
@@ -320,11 +322,19 @@ td.col-index{ text-align:center; color:var(--text-soft); }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width:860px){
-  .layout{ grid-template-columns:1fr; }
+  .layout{ grid-template-columns:1fr; padding:16px 14px 40px; }
   .sidebar{ position:static; }
   .class-list{ flex-direction:row; overflow-x:auto; padding-bottom:4px; }
   .class-item{ flex-direction:column; min-width:100px; text-align:center; }
   .sidebar-footer{ flex-direction:row; }
+
+  body{ font-size:17px; }
+  .content{ padding:18px 14px; }
+  .toolbar-heading h2{ font-size:1.6rem; }
+  .toolbar-sub{ font-size:1rem; }
+  .btn{ font-size:1rem; padding:12px 18px; }
+  .student-table td, .student-table thead th{ font-size:1rem; padding:14px 12px; }
+  .brand-text h1{ font-size:1.25rem; }
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -381,4 +391,9 @@ td.col-index{ text-align:center; color:var(--text-soft); }
 
 @media (max-width:480px){
   .login-grid{ grid-template-columns:1fr; }
+  .login-card{ padding:24px 18px; }
+  .login-card h2{ font-size:1.6rem; }
+  .login-sub{ font-size:1rem; }
+  .login-class-btn{ font-size:1.05rem; padding:16px; }
+  .login-admin-btn{ font-size:1.05rem; padding:14px; }
 }

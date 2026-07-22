@@ -245,12 +245,64 @@ const modalTitle     = document.getElementById("modalTitle");
 const studentForm    = document.getElementById("studentForm");
 const fieldName       = document.getElementById("fieldName");
 const fieldGender     = document.getElementById("fieldGender");
-const fieldDob        = document.getElementById("fieldDob");
+const fieldDobDay     = document.getElementById("fieldDobDay");
+const fieldDobMonth   = document.getElementById("fieldDobMonth");
+const fieldDobYear    = document.getElementById("fieldDobYear");
+
+/* បំពេញ Dropdown ថ្ងៃ/ខែ/ឆ្នាំ (ឆ្នាំសកលជានិច្ច មិនប្រែប្រួលតាមភាសាកម្មវិធីរុករកទេ) */
+function populateDobDropdowns(){
+  fieldDobDay.innerHTML = "";
+  for (let d = 1; d <= 31; d++){
+    const opt = document.createElement("option");
+    opt.value = String(d).padStart(2, "0");
+    opt.textContent = d;
+    fieldDobDay.appendChild(opt);
+  }
+
+  fieldDobMonth.innerHTML = "";
+  for (let m = 1; m <= 12; m++){
+    const opt = document.createElement("option");
+    opt.value = String(m).padStart(2, "0");
+    opt.textContent = m;
+    fieldDobMonth.appendChild(opt);
+  }
+
+  fieldDobYear.innerHTML = "";
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear; y >= currentYear - 20; y--){
+    const opt = document.createElement("option");
+    opt.value = String(y);
+    opt.textContent = y;
+    fieldDobYear.appendChild(opt);
+  }
+}
+populateDobDropdowns();
+
+function setDobFields(dobStr){
+  if (!dobStr){
+    fieldDobDay.selectedIndex = 0;
+    fieldDobMonth.selectedIndex = 0;
+    fieldDobYear.selectedIndex = 0;
+    return;
+  }
+  const parts = String(dobStr).split("-");
+  if (parts.length === 3){
+    const [y, m, d] = parts;
+    fieldDobYear.value = y;
+    fieldDobMonth.value = m;
+    fieldDobDay.value = d;
+  }
+}
+
+function getDobFromFields(){
+  return `${fieldDobYear.value}-${fieldDobMonth.value}-${fieldDobDay.value}`;
+}
 
 document.getElementById("addStudentBtn").addEventListener("click", () => {
   editingIndex = null;
   modalTitle.textContent = "បន្ថែមសិស្សថ្មី";
   studentForm.reset();
+  setDobFields("");
   modalBackdrop.hidden = false;
   fieldName.focus();
 });
@@ -271,7 +323,7 @@ studentForm.addEventListener("submit", (e) => {
   const student = {
     name: fieldName.value.trim(),
     gender: fieldGender.value,
-    dob: fieldDob.value
+    dob: getDobFromFields()
   };
   if (!student.name || !student.gender || !student.dob){
     showToast("សូមបំពេញព័ត៌មានឱ្យគ្រប់គ្រាន់", true);
@@ -311,7 +363,7 @@ tableBodyEl.addEventListener("click", (e) => {
     modalTitle.textContent = "កែប្រែព័ត៌មានសិស្ស";
     fieldName.value = student.name;
     fieldGender.value = student.gender;
-    fieldDob.value = student.dob;
+    setDobFields(student.dob);
     modalBackdrop.hidden = false;
     fieldName.focus();
   }

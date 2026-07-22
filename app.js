@@ -510,3 +510,24 @@ function normalizeDob(val){
   if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
   return str;
 }
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDUgDiIFq-GFh4drTSDvurXUnyY5_nQgHk",
+  authDomain: "samat-seia.firebaseapp.com",
+  projectId: "samat-seia",
+  storageBucket: "samat-seia.firebasestorage.app",
+  messagingSenderId: "492616612696",
+  appId: "1:492616612696:web:c4bdcf095ffd7684a8432d",
+  measurementId: "G-1Y91X58DGT"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);

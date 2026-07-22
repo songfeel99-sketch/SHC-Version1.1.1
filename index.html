@@ -124,8 +124,12 @@
           </select>
         </label>
         <label class="field">
-          <span>ថ្ងៃខែឆ្នាំកំណើត</span>
-          <input type="date" id="fieldDob" required>
+          <span>ថ្ងៃខែឆ្នាំកំណើត (ឆ្នាំសកល / Gregorian)</span>
+          <div class="dob-group">
+            <select id="fieldDobDay" required></select>
+            <select id="fieldDobMonth" required></select>
+            <select id="fieldDobYear" required></select>
+          </div>
         </label>
         <div class="modal-actions">
           <button type="button" class="btn btn-outline" id="cancelBtn">បោះបង់</button>

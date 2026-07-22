@@ -42,6 +42,17 @@ let activeClass = CLASSES[0];
 let editingIndex = null; /* null = add mode, number = edit mode */
 let currentUser = null;  /* { role: "teacher" | "admin", class: string|null } */
 
+const firebaseWarningEl = document.getElementById("firebaseWarning");
+
+function showFirebaseWarning(message){
+  firebaseWarningEl.textContent = message;
+  firebaseWarningEl.hidden = false;
+}
+function hideFirebaseWarning(){
+  firebaseWarningEl.hidden = true;
+}
+showFirebaseWarning("⏳ កំពុងភ្ជាប់ទៅមូលដ្ឋានទិន្នន័យ...");
+
 /* =========================================================
    ការភ្ជាប់ Firestore (ធ្វើសមកាលកម្មទិន្នន័យតាមពេលវេលាពិត)
    ========================================================= */
@@ -54,10 +65,11 @@ CLASSES.forEach((name, index) => {
         : [];
       data[name] = students;
       firestoreReady = true;
+      hideFirebaseWarning();
       if (currentUser) renderAll();
     }, err => {
       console.error("Firestore sync error:", err);
-      showToast("មិនអាចភ្ជាប់ទៅមូលដ្ឋានទិន្នន័យ Firebase បានទេ។ សូមពិនិត្យការកំណត់", true);
+      showFirebaseWarning("⚠️ មិនអាចភ្ជាប់ទៅមូលដ្ឋានទិន្នន័យ Firebase បានទេ! ទិន្នន័យសិស្សនឹងមិនចែករំលែករវាងអ្នកប្រើប្រាស់ទេ រហូតទាល់តែកែការកំណត់ Firebase (firebaseConfig ក្នុង app.js និង Firestore Rules)");
     });
 });
 
@@ -66,9 +78,11 @@ function saveClassToFirestore(className){
   if (index === -1) return;
   db.collection("classes").doc(classDocId(index))
     .set({ students: data[className] })
+    .then(() => hideFirebaseWarning())
     .catch(err => {
       console.error("Firestore save error:", err);
       showToast("មិនអាចរក្សាទុកទិន្នន័យទៅ Firebase បានទេ", true);
+      showFirebaseWarning("⚠️ មិនអាចរក្សាទុកទិន្នន័យទៅ Firebase បានទេ! សូមពិនិត្យការកំណត់ firebaseConfig និង Firestore Rules");
     });
 }
 

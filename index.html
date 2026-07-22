@@ -8,87 +8,102 @@
 </head>
 <body>
 
-  <!-- ===== HEADER ===== -->
-  <header class="site-header">
-    <div class="header-inner">
-      <div class="brand">
-        <div class="brand-emblem" aria-hidden="true">
-          <svg viewBox="0 0 64 64" width="46" height="46">
-            <path d="M32 4 L40 20 L54 20 L42 30 L47 46 L32 36 L17 46 L22 30 L10 20 L24 20 Z"
-                  fill="none" stroke="currentColor" stroke-width="2"/>
-            <circle cx="32" cy="26" r="6" fill="currentColor"/>
-          </svg>
-        </div>
-        <div class="brand-text">
-          <h1>SMILE AND HOPE CENTER</h1>
-          <p class="brand-sub">ប្រព័ន្ធគ្រប់គ្រងព័ត៌មានសិស្ស — ៧ ថ្នាក់រៀន</p>
-        </div>
-      </div>
-      <div class="header-stats">
-        <div class="stat-pill">
-          <span class="stat-num" id="totalStudents">0</span>
-          <span class="stat-label">សិស្សសរុប</span>
-        </div>
-        <div class="stat-pill">
-          <span class="stat-num">7</span>
-          <span class="stat-label">ថ្នាក់រៀន</span>
-        </div>
-      </div>
+  <!-- ===== LOGIN SCREEN ===== -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <h2>ចូលប្រើប្រាស់ប្រព័ន្ធ</h2>
+      <p class="login-sub">សូមជ្រើសរើសថ្នាក់របស់អ្នក ឬចូលជា Admin</p>
+      <div class="login-grid" id="loginClassGrid"><!-- injected by app.js --></div>
+      <button class="btn btn-outline login-admin-btn" id="loginAdminBtn" type="button">ចូលជា Admin</button>
     </div>
-    <div class="kbach-border" aria-hidden="true"></div>
-  </header>
+  </div>
 
-  <div class="layout">
+  <!-- ===== APP CONTAINER (hidden until login) ===== -->
+  <div id="appContainer" hidden>
 
-    <!-- ===== SIDEBAR : CLASS LIST ===== -->
-    <nav class="sidebar" aria-label="បញ្ជីថ្នាក់រៀន">
-      <p class="sidebar-title">ថ្នាក់តាមគ្រូបន្ទុក</p>
-      <ul class="class-list" id="classList"><!-- injected by script.js --></ul>
-
-      <div class="sidebar-footer">
-        <button class="btn btn-outline" id="exportAllBtn" type="button">
-          ទាញយកទាំងអស់ (Excel)
-        </button>
-        <label class="btn btn-outline" for="importAllInput">
-          នាំចូលឯកសារ Excel
-        </label>
-        <input type="file" id="importAllInput" accept=".xlsx,.xls" hidden>
-      </div>
-    </nav>
-
-    <!-- ===== MAIN CONTENT ===== -->
-    <main class="content">
-
-      <div class="content-toolbar">
-        <div class="toolbar-heading">
-          <h2 id="activeClassTitle">ថ្នាក់</h2>
-          <p class="toolbar-sub" id="activeClassSub">គ្រូបន្ទុកថ្នាក់</p>
+    <!-- ===== HEADER ===== -->
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="brand">
+          <div class="brand-emblem" aria-hidden="true">
+            <svg viewBox="0 0 64 64" width="46" height="46">
+              <path d="M32 4 L40 20 L54 20 L42 30 L47 46 L32 36 L17 46 L22 30 L10 20 L24 20 Z"
+                    fill="none" stroke="currentColor" stroke-width="2"/>
+              <circle cx="32" cy="26" r="6" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>SMILE AND HOPE CENTER</h1>
+            <p class="brand-sub">ប្រព័ន្ធគ្រប់គ្រងព័ត៌មានសិស្ស — ៧ ថ្នាក់រៀន</p>
+          </div>
         </div>
-        <div class="toolbar-actions">
-          <button class="btn btn-primary" id="addStudentBtn" type="button">+ បន្ថែមសិស្ស</button>
-          <button class="btn btn-gold" id="exportClassBtn" type="button">ទាញយក Excel</button>
-          <label class="btn btn-outline" for="importClassInput">នាំចូល Excel</label>
-          <input type="file" id="importClassInput" accept=".xlsx,.xls" hidden>
+        <div class="header-stats">
+          <div class="stat-pill">
+            <span class="stat-num" id="totalStudents">0</span>
+            <span class="stat-label">សិស្សសរុប</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-num">7</span>
+            <span class="stat-label">ថ្នាក់រៀន</span>
+          </div>
+          <button class="btn btn-outline" id="logoutBtn" type="button" hidden>ចាកចេញ</button>
         </div>
       </div>
+      <div class="kbach-border" aria-hidden="true"></div>
+    </header>
 
-      <div class="table-wrap">
-        <table class="student-table">
-          <thead>
-            <tr>
-              <th class="col-index">ល.រ</th>
-              <th class="col-name">ឈ្មោះសិស្ស</th>
-              <th class="col-gender">ភេទ</th>
-              <th class="col-dob">ថ្ងៃខែឆ្នាំកំណើត</th>
-              <th class="col-actions">សកម្មភាព</th>
-            </tr>
-          </thead>
-          <tbody id="studentTableBody"><!-- injected by script.js --></tbody>
-        </table>
-        <p class="empty-state" id="emptyState" hidden>មិនទាន់មានទិន្នន័យសិស្សនៅឡើយទេ។ សូមចុច "បន្ថែមសិស្ស" ដើម្បីចាប់ផ្តើម។</p>
-      </div>
+    <div class="layout">
 
-    </main>
+      <!-- ===== SIDEBAR : CLASS LIST (Admin only) ===== -->
+      <nav class="sidebar" aria-label="បញ្ជីថ្នាក់រៀន" id="sidebarNav">
+        <p class="sidebar-title">ថ្នាក់តាមគ្រូបន្ទុក</p>
+        <ul class="class-list" id="classList"><!-- injected by app.js --></ul>
+
+        <div class="sidebar-footer">
+          <button class="btn btn-outline" id="exportAllBtn" type="button">
+            ទាញយកទាំងអស់ (Excel)
+          </button>
+          <label class="btn btn-outline" for="importAllInput">
+            នាំចូលឯកសារ Excel
+          </label>
+          <input type="file" id="importAllInput" accept=".xlsx,.xls" hidden>
+        </div>
+      </nav>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <main class="content">
+
+        <div class="content-toolbar">
+          <div class="toolbar-heading">
+            <h2 id="activeClassTitle">ថ្នាក់</h2>
+            <p class="toolbar-sub" id="activeClassSub">គ្រូបន្ទុកថ្នាក់</p>
+          </div>
+          <div class="toolbar-actions">
+            <button class="btn btn-primary" id="addStudentBtn" type="button">+ បន្ថែមសិស្ស</button>
+            <button class="btn btn-gold" id="exportClassBtn" type="button">ទាញយក Excel</button>
+            <label class="btn btn-outline" for="importClassInput">នាំចូល Excel</label>
+            <input type="file" id="importClassInput" accept=".xlsx,.xls" hidden>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="student-table">
+            <thead>
+              <tr>
+                <th class="col-index">ល.រ</th>
+                <th class="col-name">ឈ្មោះសិស្ស</th>
+                <th class="col-gender">ភេទ</th>
+                <th class="col-dob">ថ្ងៃខែឆ្នាំកំណើត</th>
+                <th class="col-actions">សកម្មភាព</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody"><!-- injected by app.js --></tbody>
+          </table>
+          <p class="empty-state" id="emptyState" hidden>មិនទាន់មានទិន្នន័យសិស្សនៅឡើយទេ។ សូមចុច "បន្ថែមសិស្ស" ដើម្បីចាប់ផ្តើម។</p>
+        </div>
+
+      </main>
+    </div>
   </div>
 
   <!-- ===== ADD / EDIT STUDENT MODAL ===== -->
@@ -123,6 +138,8 @@
   <div class="toast" id="toast" hidden></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="./app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
